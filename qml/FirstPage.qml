@@ -146,10 +146,16 @@ Page {
                        id: sendold
                        icon.source: ( positiontimer.tosend !== 0 ) ? "image://theme/icon-m-cloud-upload?" + Theme.highlightColor : "image://theme/icon-m-cloud-upload?" + Theme.secondaryColor
                        property bool sending
+                       // rate-limit sending to 5 per second:
+                       Timer { id: delayTimer ; interval: 200 ; repeat: false }
+                       function delay(callback) {
+                               delayTimer.triggered.connect(callback);
+                               delayTimer.start();
+                       }
                        onClicked: {
                                    sending = true
                                    for(var i=0;positiondata.positionvar.length >0 && positiondata.positionvar.length > i ;i++){
-                                       sendData(i);
+                                       delay(sendData(i));
                                        positiontimer.tosend = positiondata.positionvar.length;
                                    }
                                    sending = false
