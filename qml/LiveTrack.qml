@@ -43,7 +43,7 @@ ApplicationWindow
     McePowerSaveMode { id: powerSaveMode }
     PositionSource { id: gps }
     CellSource { id: cells }
-    Timer {id: positiontimer}
+    PositionTimer {id: positiontimer}
     Page {id:settingspages;}
     QtObject { id:positiondata
         property var positionvar: [];
