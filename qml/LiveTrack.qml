@@ -42,17 +42,98 @@ ApplicationWindow
     property alias powersaving: powerSaveMode.active
     McePowerSaveMode { id: powerSaveMode }
     PositionSource { id: gps }
-    CellSource { id: cells ; active: livetracksettings.getBool("mlscollect") }
+    CellSource { id: cells ; active: true }//livetracksettings.getBool("mlscollect") }
     PositionTimer {id: positiontimer}
+    Timer {id: celltimer
+        interval: 1000 * 60 * 5
+        repeat: true
+        onTriggered: submitCells()
+        running: livetracksettings.getBool("mlscollect") && (cells.count > 0)
+    }
     Page {id:settingspages;}
     QtObject { id:positiondata
         property var positionvar: [];
     }
     property int sendgood:0;
+    property int cellsendgood:0;
     readonly property string userAgent: Qt.application.name
 
 //-----------------------Function-----------------------------//
     property bool state: false;
+    function submitCells() {
+        var pos
+        if(gps.ready && gps.valid) {
+             pos = { "source": "gps", //.or "fused"
+             "latitude":  gps.position.coordinate.latitude.toFixed(4),
+             "longitude": gps.position.coordinate.longitude.toFixed(4),
+             "speed":     gps.position.speed.toFixed(4),
+             "heading":   gps.position.direction.,
+             "accuracy": gps.position.horizontalAccuracy,
+             "altitudeAccuracy":   gps.position.verticalAccuracy.toFixed(4)
+             }
+        } else { return }
+
+        var payload = { "items": [
+            { "timestamp": Date.now(),
+              "cellTowers": [],
+              "position": {}
+            }
+        ]
+        }
+        //console.debug(JSON.stringify(cells.getCells()))
+        var cta = cells.getCells().map(function(cell, idx, arr) {
+            const types = [ "Unknown", "gsm", "wcdma", "lte", "nr" ]
+            return {
+                "radioType": types[cell.type],
+                "mobileCountryCode": cell.mcc,
+                "mobileNetworkCode": cell.mnc,
+				"locationAreaCode": cell.lac,
+                "cellId": cell.ci,
+                "age": cell.earfcn,
+                "serving": cell.registered,
+                "signalStrength": cell.signalStrength
+            }
+        })
+        if (!cta.length) {
+          console.warn("No valid cells!")
+          return
+        }
+        console.debug("got usable cells:", cta.length +"/"+ cells.count)
+        payload.items[0].cellTowers = cta
+        payload.items[0].position = pos
+        //console.debug(JSON.stringify(cta))
+        console.debug(JSON.stringify(payload))
+        //return
+        var http = new XMLHttpRequest()
+        var url
+        var nick
+        if(livetracksettings.getBool("mlscustom")) {
+            nick = livetracksettings.getString("MLSID")
+            url = livetracksettings.getString("MLSURL")+"?key="+livetracksettings.getString("MLSKEY")
+        } else {
+            nick = 'geoclue_sailfishos-community-testing'
+            console.warn("Using testing key for submission!")
+            //nick = 'geoclue_sailfishos-community'
+            url = 'https://api.beacondb.net/v2/geosubmit?key='+nick
+        }
+        http.open("POST", url);
+        http.setRequestHeader("X-Nickname", nick)
+        http.setRequestHeader("Content-Type", " application/json")
+
+        http.onreadystatechange = function() {
+            if (http.readyState === XMLHttpRequest.DONE) {
+              if (http.status === 200) {
+                  cellsendgood += cta.length
+                  console.info("Submitted.")
+                  console.debug(JSON.stringify(payload))
+              } else {
+                  console.warn("Submission failed:", http.statusText)
+                  console.debug(JSON.stringify(payload))
+              }
+            }
+        }
+        http.send(JSON.stringify(payload));
+    }
     function sendData(index) {
         var http = new XMLHttpRequest()
         var url

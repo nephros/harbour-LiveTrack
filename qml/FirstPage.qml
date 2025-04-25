@@ -286,15 +286,8 @@ Page {
                        id: cellsendold
                        icon.source: ( positiontimer.tosend !== 0 ) ? "image://theme/icon-m-cloud-upload?" + Theme.highlightColor : "image://theme/icon-m-cloud-upload?" + Theme.secondaryColor
                        property bool sending
-                       onClicked: {
-                                   sending = true
-                                   for(var i=0;positiondata.positionvar.length >0 && positiondata.positionvar.length > i ;i++){
-                                       sendData(i);
-                                       positiontimer.tosend = positiondata.positionvar.length;
-                                   }
-                                   sending = false
-                                   }
-                       enabled: ( positiontimer.tosend !== 0 )
+                       onClicked: submitCells()
+                       //enabled: ( positiontimer.tosend !== 0 )
                        Behavior on enabled { FadeAnimation {} }
                        BusyIndicator {
                          id: cellupbusy
@@ -333,13 +326,14 @@ Page {
                             horizontalAlignment: Text.AlignRight
                             color: Theme.secondaryHighlightColor
                             font.pixelSize: Theme.fontSizeTiny
-                            text: qsTr("Saved") + ": "
+                            text: qsTr("Visible") + ": "
+                            //text: qsTr("Saved") + ": "
                         }
                         Label {
                             horizontalAlignment: Text.AlignRight
                             color: Theme.secondaryHighlightColor
                             font.pixelSize: Theme.fontSizeTiny
-                            text: qsTr("Ignored") + ": "
+                            text: qsTr("Seen") + ": "
                         }
                         Label {
                             horizontalAlignment: Text.AlignRight
@@ -353,25 +347,26 @@ Page {
                             horizontalAlignment: Text.AlignRight
                             color: Theme.highlightColor
                             font.pixelSize: Theme.fontSizeTiny
-                            text: sendgood
+                            text: cellsendgood
                         }
                         Label {
                             horizontalAlignment: Text.AlignRight
                             color: Theme.highlightColor
                             font.pixelSize: Theme.fontSizeTiny
-                            text: positiontimer.tosend
+                            text: cells.count
+                            //text: positiontimer.tosend
                         }
                         Label {
                             horizontalAlignment: Text.AlignRight
                             color: Theme.highlightColor
                             font.pixelSize: Theme.fontSizeTiny
-                            text: positiontimer.ignored
+                            text: cells.seen
                         }
                         Label {
                             horizontalAlignment: Text.AlignRight
                             color: Theme.highlightColor
                             font.pixelSize: Theme.fontSizeTiny
-                            text: (positiontimer.interval/1000 +"s")
+                            text: (celltimer.interval/1000/60 +"m")
 
                         }
                       }
