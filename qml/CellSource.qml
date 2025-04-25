@@ -4,7 +4,8 @@ import org.nemomobile.ofono 1.0
 Item {
     id: root
 
-    property alias active: cellInfo.valid
+    property bool active: false
+    property alias valid: cellInfo.valid
 
     function getCells() {
         var ret = []
@@ -22,16 +23,17 @@ Item {
     }
     OfonoExtCellInfo {
         id: cellInfo
-        modemPath: "/ril_0"
-        //onValidChanged: console.debug("cellInfo valid:", valid)
-
+        modemPath: root.active ? "/ril_0" : ""
+        /*
+        onValidChanged: console.debug("cellInfo valid:", valid)
         onCellsRemoved: {
-          //console.debug("cells removed", cells)
+          console.debug("cells removed", cells)
         }
         onCellsAdded: {
-          //console.debug("cells added", cells)
-          //cellInfoFactory.model = cells
+          console.debug("cells added", cells)
+          cellInfoFactory.model = cells
         }
+        */
     }
     Instantiator { id: cellInfoFactory
         model: cellInfo.cells

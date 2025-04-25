@@ -42,7 +42,7 @@ ApplicationWindow
     property alias powersaving: powerSaveMode.active
     McePowerSaveMode { id: powerSaveMode }
     PositionSource { id: gps }
-    CellSource { id: cells }
+    CellSource { id: cells ; active: livetracksettings.getBool("mlscollect") }
     PositionTimer {id: positiontimer}
     Page {id:settingspages;}
     QtObject { id:positiondata
