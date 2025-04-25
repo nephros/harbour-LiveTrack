@@ -238,6 +238,146 @@ Page {
                   }
                 }
             }
+
+            Row {
+                id: cellIconButtons
+                spacing: Theme.paddingLarge * 2
+                //anchors.horizontalCenter: parent.horizontalCenter
+                anchors.right: iconButtons.right
+                Column{
+                    anchors.top: parent.top
+                }
+                Column {
+                    anchors.top: parent.top
+                    Label {
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        font.pixelSize: Theme.fontSizeSmall
+                        horizontalAlignment: Text.AlignHCenter
+                        color: Theme.highlightColor
+                        text: qsTr("Collecting")
+                    }
+                    IconButton {
+                        id: cellplay
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        icon.source: positiontimer.running ? "image://theme/icon-m-pause?" + Theme.highlightColor : "image://theme/icon-m-play?" + Theme.secondaryColor
+                        enabled: livetracksettings.getBool("mlscollect")
+                        onClicked: {
+                          playClicked();
+                        }
+                    }
+                    Label {
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        font.pixelSize: Theme.fontSizeTiny
+                        horizontalAlignment: Text.AlignHCenter
+                        color: Theme.secondaryColor
+                        text: positiontimer.running ?  qsTr("enabled") : qsTr("paused")
+                    }
+                }
+                Column {
+                    anchors.top: parent.top
+                    Label {
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        font.pixelSize: Theme.fontSizeSmall
+                        horizontalAlignment: Text.AlignHCenter
+                        color: Theme.highlightColor
+                        text: qsTr("Submit")
+                    }
+                    IconButton {
+                       id: cellsendold
+                       icon.source: ( positiontimer.tosend !== 0 ) ? "image://theme/icon-m-cloud-upload?" + Theme.highlightColor : "image://theme/icon-m-cloud-upload?" + Theme.secondaryColor
+                       property bool sending
+                       onClicked: {
+                                   sending = true
+                                   for(var i=0;positiondata.positionvar.length >0 && positiondata.positionvar.length > i ;i++){
+                                       sendData(i);
+                                       positiontimer.tosend = positiondata.positionvar.length;
+                                   }
+                                   sending = false
+                                   }
+                       enabled: ( positiontimer.tosend !== 0 )
+                       Behavior on enabled { FadeAnimation {} }
+                       BusyIndicator {
+                         id: cellupbusy
+                         anchors.centerIn: parent
+                         size: BusyIndicatorSize.Small
+                         running: ( sendold.sending && page.status === PageStatus.Active )
+                       }
+                   }
+                   Label {
+                       anchors.horizontalCenter: parent.horizontalCenter
+                       font.pixelSize: Theme.fontSizeTiny
+                       horizontalAlignment: Text.AlignHCenter
+                       color: Theme.secondaryColor
+                       //text: positiontimer.running ?  qsTr("sending") : positiontimer.tosend
+                       text: sendold.sending ? qsTr("submiting") : positiontimer.tosend + " / " + sendgood
+                   }
+                }
+                Column {
+                    anchors.top: parent.top
+                    Label {
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        font.pixelSize: Theme.fontSizeSmall
+                        horizontalAlignment: Text.AlignHCenter
+                        color: Theme.highlightColor
+                        text: qsTr("Datapoints")
+                    }
+                    Row {
+                      Column {
+                        Label {
+                            horizontalAlignment: Text.AlignRight
+                            color: Theme.secondaryHighlightColor
+                            font.pixelSize: Theme.fontSizeTiny
+                            text: qsTr("Sent") + ": "
+                        }
+                        Label {
+                            horizontalAlignment: Text.AlignRight
+                            color: Theme.secondaryHighlightColor
+                            font.pixelSize: Theme.fontSizeTiny
+                            text: qsTr("Saved") + ": "
+                        }
+                        Label {
+                            horizontalAlignment: Text.AlignRight
+                            color: Theme.secondaryHighlightColor
+                            font.pixelSize: Theme.fontSizeTiny
+                            text: qsTr("Ignored") + ": "
+                        }
+                        Label {
+                            horizontalAlignment: Text.AlignRight
+                            color: Theme.secondaryHighlightColor
+                            font.pixelSize: Theme.fontSizeTiny
+                            text: qsTr("Interval") + ": "
+                        }
+                      }
+                      Column {
+                        Label {
+                            horizontalAlignment: Text.AlignRight
+                            color: Theme.highlightColor
+                            font.pixelSize: Theme.fontSizeTiny
+                            text: sendgood
+                        }
+                        Label {
+                            horizontalAlignment: Text.AlignRight
+                            color: Theme.highlightColor
+                            font.pixelSize: Theme.fontSizeTiny
+                            text: positiontimer.tosend
+                        }
+                        Label {
+                            horizontalAlignment: Text.AlignRight
+                            color: Theme.highlightColor
+                            font.pixelSize: Theme.fontSizeTiny
+                            text: positiontimer.ignored
+                        }
+                        Label {
+                            horizontalAlignment: Text.AlignRight
+                            color: Theme.highlightColor
+                            font.pixelSize: Theme.fontSizeTiny
+                            text: (positiontimer.interval/1000 +"s")
+
+                        }
+                      }
+                  }
+                }
+            }
         }
     }
     function playClicked() {
