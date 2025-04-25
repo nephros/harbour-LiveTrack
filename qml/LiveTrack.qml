@@ -42,10 +42,10 @@ ApplicationWindow
     property alias powersaving: powerSaveMode.active
     McePowerSaveMode { id: powerSaveMode }
     PositionSource { id: gps }
+    CellSource { id: cells }
     Timer {id: positiontimer}
     Page {id:settingspages;}
-    Item{
-        id:positiondata
+    QtObject { id:positiondata
         property var positionvar: [];
     }
     property int sendgood:0;
