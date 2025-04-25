@@ -19,6 +19,18 @@ void Settings::initialize()
     if (!this->contains("traccar"))
         this->setValue("traccar", false);
 
+    if (!this->contains("mlscollect"))
+        this->setValue("mlscollect", false);
+    if (!this->contains("mlssubmit"))
+        this->setValue("mlssubmit", false);
+    if (!this->contains("mlscustom"))
+        this->setValue("mlscustom", false);
+    if (!this->contains("MLSURL"))
+        this->setValue("MLSURL", "https://api.beacondb.net/v2/geosubmit");
+    if (!this->contains("MLSID"))
+        this->setValue("MLSID", "geoclue_sailfishos-community");
+    if (!this->contains("MLSKEY"))
+        this->setValue("MLSKEY", "3Xaimp7E-KeY");
 }
 void Settings::set(const QString& key, const QVariant &value){
     this->setValue(key, value);
