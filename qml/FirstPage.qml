@@ -37,11 +37,11 @@ Page {
             }
             DetailItem2 {
                 label: qsTr("Latitude")
-                value: { return gps.position.coordinate.latitude.toPrecision(9) }
+                value: { return gps.position.coordinate.latitude.toFixed(4) }
             }
             DetailItem2 {
                 label: qsTr("Longitude")
-                value: { return gps.position.coordinate.longitude.toPrecision(9) }
+                value: { return gps.position.coordinate.longitude.toFixed(4) }
             }
             DetailItem {
                 label: qsTr("Accuracy")
