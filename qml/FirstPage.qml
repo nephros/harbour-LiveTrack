@@ -259,18 +259,18 @@ Page {
                     IconButton {
                         id: cellplay
                         anchors.horizontalCenter: parent.horizontalCenter
-                        icon.source: positiontimer.running ? "image://theme/icon-m-pause?" + Theme.highlightColor : "image://theme/icon-m-play?" + Theme.secondaryColor
+                        icon.source: celltimer.running ? "image://theme/icon-m-pause?" + Theme.highlightColor : "image://theme/icon-m-play?" + Theme.secondaryColor
                         enabled: livetracksettings.getBool("mlscollect")
-                        onClicked: {
-                          playClicked();
-                        }
+                        //onClicked: {
+                        //  playClicked();
+                        //}
                     }
                     Label {
                         anchors.horizontalCenter: parent.horizontalCenter
                         font.pixelSize: Theme.fontSizeTiny
                         horizontalAlignment: Text.AlignHCenter
                         color: Theme.secondaryColor
-                        text: positiontimer.running ?  qsTr("enabled") : qsTr("paused")
+                        text: celltimer.running ?  qsTr("enabled") : qsTr("paused")
                     }
                 }
                 Column {
@@ -283,18 +283,12 @@ Page {
                         text: qsTr("Submit")
                     }
                     IconButton {
-                       id: cellsendold
-                       icon.source: ( positiontimer.tosend !== 0 ) ? "image://theme/icon-m-cloud-upload?" + Theme.highlightColor : "image://theme/icon-m-cloud-upload?" + Theme.secondaryColor
-                       property bool sending
+                       id: cellsend
+                       icon.source: "image://theme/icon-m-cloud-upload?" +
+                                ( enabled ? Theme.highlightColor : Theme.secondaryColor )
                        onClicked: submitCells()
-                       //enabled: ( positiontimer.tosend !== 0 )
+                       enabled: cells.count > 0
                        Behavior on enabled { FadeAnimation {} }
-                       BusyIndicator {
-                         id: cellupbusy
-                         anchors.centerIn: parent
-                         size: BusyIndicatorSize.Small
-                         running: ( sendold.sending && page.status === PageStatus.Active )
-                       }
                    }
                    Label {
                        anchors.horizontalCenter: parent.horizontalCenter
@@ -302,7 +296,8 @@ Page {
                        horizontalAlignment: Text.AlignHCenter
                        color: Theme.secondaryColor
                        //text: positiontimer.running ?  qsTr("sending") : positiontimer.tosend
-                       text: sendold.sending ? qsTr("submiting") : positiontimer.tosend + " / " + sendgood
+                       //text: sendold.sending ? qsTr("submiting") : positiontimer.tosend + " / " + sendgood
+                       text: cellsendgood
                    }
                 }
                 Column {
