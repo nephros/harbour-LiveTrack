@@ -20,7 +20,7 @@ Item {
           Object.keys(o).forEach(function(k) {
             if (typeof o[k]  == "number") {
               if (o[k] != OfonoExtCell.InvalidValue) { r[k] = o[k] }
-            } else if ((k != "objectName") && (k != "valid")) {
+            } else if ((k != "objectName") && (k != "valid") ) {
               r[k] = o[k]
             }
           })
@@ -44,21 +44,23 @@ Item {
     }
     Instantiator { id: cellInfoFactory
         model: cellInfo.cells
+        onObjectAdded: object.path = model[index]
         delegate: OfonoExtCell {
+            property int timestamp: OfonoExtCell.InvalidValue
             property bool usable: (
                    (ci != OfonoExtCell.InvalidValue)
                 //&& (mcc != OfonoExtCell.InvalidValue)
                 //&& (mnc != OfonoExtCell.InvalidValue)
                 && ((type >= 1) && (type <= 3))
                 )
+             onUsableChanged: timestamp = Date.now()
+             onPropertyChanged: timestamp = Date.now()
              /*
-             onUsableChanged: {}
              onPropertyChanged: {
                //if (value != OfonoExtCell.InvalidValue) console.debug("v:", ""+(index+1)+"/"+cellInfoFactory.count, name, value)
                //if (name == "registered" && value) console.debug("registered!")
             }
             */
         }
-        onObjectAdded: object.path = model[index]
     }
 }

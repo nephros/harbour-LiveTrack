@@ -113,11 +113,12 @@ ApplicationWindow
                 "mobileCountryCode": cell.mcc,
                 "mobileNetworkCode": cell.mnc,
                 "cellId": cell.ci,
-                //"age": cell.earfcn,
                 "serving": cell.registered,
                 "asu": cell.signalStrength,
                 "signalStrength": cell.signalLevelDbm
             }
+            if (!!cell.timestamp && (cell.timestamp != cells.invalidValue))
+                ret["age"] = ts - cell.timestamp
             if (!!cell.tac && (cell.tac != cells.invalidValue))
                 ret["timingAdvance"] = cell.tac
             if (!!cell.pci && (cell.pci != cells.invalidValue) && (types[cell.type] == "lte"))
