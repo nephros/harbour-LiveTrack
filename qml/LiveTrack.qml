@@ -42,7 +42,7 @@ ApplicationWindow
     property alias powersaving: powerSaveMode.active
     McePowerSaveMode { id: powerSaveMode }
     PositionSource { id: gps ; active: !powersaving }
-    CellSource { id: cells ; active: !powersaving }
+    CellSource { id: cells ; active: cellCollectSettings.enabled && !powersaving }
     PositionTimer {id: positiontimer}
     Timer {id: celltimer
         interval: 1000 * 60 * 5

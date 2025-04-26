@@ -43,6 +43,7 @@ Item {
         */
     }
     Instantiator { id: cellInfoFactory
+        active: root.active
         model: cellInfo.cells
         onObjectAdded: object.path = model[index]
         delegate: OfonoExtCell {
