@@ -41,14 +41,14 @@ ApplicationWindow
     allowedOrientations: defaultAllowedOrientations
     property alias powersaving: powerSaveMode.active
     McePowerSaveMode { id: powerSaveMode }
-    PositionSource { id: gps }
-    CellSource { id: cells ; active: true }//livetracksettings.getBool("mlscollect") }
+    PositionSource { id: gps ; active: !powersaving }
+    CellSource { id: cells ; active: !powersaving }//livetracksettings.getBool("mlscollect") }
     PositionTimer {id: positiontimer}
     Timer {id: celltimer
         interval: 1000 * 60 * 5
         repeat: true
         onTriggered: submitCells()
-        running: livetracksettings.getBool("mlscollect") && (cells.count > 0)
+        running: livetracksettings.getBool("mlscollect") && (cells.count > 0) && !powersaving
     }
     Page {id:settingspages;}
     QtObject { id:positiondata
