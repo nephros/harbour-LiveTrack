@@ -79,11 +79,11 @@ ApplicationWindow
         const acc = cellSubmitSettings.gpsPrecision
         const ts = Date.now()
         if(gps.ready && gps.valid &&  (gps.position.horizontalAccuracy < cellSubmitSettings.gpsMinPrecision) ){
-             pos = { "source": "gps", //.or "fused"
-               "latitude":  parseFloat(gps.position.coordinate.latitude.toFixed(acc)),
-               "longitude": parseFloat(gps.position.coordinate.longitude.toFixed(acc)),
-               "accuracy":  gps.position.horizontalAccuracy, //.toFixed(acc)
-               "age": ts - gps.position.timestamp
+          pos = { "source": "gps", //.or "fused"
+            "latitude":  parseFloat(gps.position.coordinate.latitude.toFixed(acc)),
+            "longitude": parseFloat(gps.position.coordinate.longitude.toFixed(acc)),
+            "accuracy":  gps.position.horizontalAccuracy, //.toFixed(acc)
+            "age": ts - gps.position.timestamp
              }
              if (gps.position.speedValid)
                  pos["speed"] = parseFloat(gps.position.speed.toFixed(acc))
@@ -94,16 +94,17 @@ ApplicationWindow
              if (gps.position.verticalAccuracyValid)
                  pos["altitudeAccuracy"] = parseFloat(gps.position.verticalAccuracy.toFixed(acc))
         } else {
-          cellsignored+=1
-          return
+            cellsignored+=1
+            return
         }
 
-        var payload = { "items": [
-            { "timestamp": ts,
-              "cellTowers": [],
-              "position": {}
-            }
-        ]
+        var payload = {
+            "items": [
+                { "timestamp": ts,
+                  "cellTowers": [],
+                  "position": {}
+                }
+            ]
         }
         //console.debug(JSON.stringify(cells.getCells()))
         var cta = cells.getCells().map(function(cell, idx, arr) {
@@ -147,14 +148,14 @@ ApplicationWindow
 
         http.onreadystatechange = function() {
             if (http.readyState === XMLHttpRequest.DONE) {
-              if (http.status === 200) {
-                  cellsendgood += cta.length
-                  console.info("Submitted.")
-                  console.debug(JSON.stringify(payload))
-              } else {
-                  console.warn("Submission failed:", http.statusText)
-                  console.debug(JSON.stringify(payload))
-              }
+                if (http.status === 200) {
+                    cellsendgood += cta.length
+                    console.info("Submitted.")
+                    console.debug(JSON.stringify(payload))
+                } else {
+                    console.warn("Submission failed:", http.statusText)
+                    console.debug(JSON.stringify(payload))
+                }
             }
         }
         http.send(JSON.stringify(payload));
@@ -170,19 +171,18 @@ ApplicationWindow
         }
         http.open("Get", url, true); //true=asynchronus,false=synchronus
         http.onreadystatechange = function() {
-          if (http.readyState === XMLHttpRequest.DONE) {
-           if (http.status === 200) {
-                     positiondata.positionvar.splice(index, 1);
-               sendgood++;
-           }
-           else {
-                positiondata.positionvar[index].dirty=false;
+            if (http.readyState === XMLHttpRequest.DONE) {
+                if (http.status === 200) {
+                    positiondata.positionvar.splice(index, 1);
+                    sendgood++;
+                } else {
+                    positiondata.positionvar[index].dirty=false;
                 }
             }
         };
         http.send();
-       return true;
-}
+        return true;
+    }
 //------------------------------------------------------------//
 
 }
