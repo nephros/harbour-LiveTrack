@@ -31,6 +31,7 @@
 import QtQuick 2.6
 import Sailfish.Silica 1.0
 import QtPositioning 5.4
+import Nemo.Mce 1.0      // power saving mode
 import "."
 
 ApplicationWindow
@@ -38,6 +39,8 @@ ApplicationWindow
     initialPage: Component { FirstPage { } }
     cover: Qt.resolvedUrl("cover/CoverPage.qml")
     allowedOrientations: defaultAllowedOrientations
+    property alias powersaving: powerSaveMode.active
+    McePowerSaveMode { id: powerSaveMode }
     PositionSource { id: gps }
     Timer {id: positiontimer}
     Page {id:settingspages;}
