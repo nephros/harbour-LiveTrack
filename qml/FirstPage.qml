@@ -328,7 +328,7 @@ Page {
                             horizontalAlignment: Text.AlignRight
                             color: Theme.secondaryHighlightColor
                             font.pixelSize: Theme.fontSizeTiny
-                            text: qsTr("Seen") + ": "
+                            text: qsTr("Ignored") + ": "
                         }
                         Label {
                             horizontalAlignment: Text.AlignRight
@@ -355,7 +355,7 @@ Page {
                             horizontalAlignment: Text.AlignRight
                             color: Theme.highlightColor
                             font.pixelSize: Theme.fontSizeTiny
-                            text: cells.seen
+                            text: cellsignored
                         }
                         Label {
                             horizontalAlignment: Text.AlignRight

@@ -69,6 +69,7 @@ ApplicationWindow
     }
     property int sendgood:0;
     property int cellsendgood:0;
+    property int cellsignored:0;
     readonly property string userAgent: Qt.application.name
 
 //-----------------------Function-----------------------------//
@@ -77,7 +78,7 @@ ApplicationWindow
         var pos
         const acc = cellSubmitSettings.gpsPrecision
         const ts = Date.now()
-        if(gps.ready && gps.valid) {
+        if(gps.ready && gps.valid &&  (gps.position.horizontalAccuracy < cellSubmitSettings.gpsMinPrecision) ){
              pos = { "source": "gps", //.or "fused"
                "latitude":  parseFloat(gps.position.coordinate.latitude.toFixed(acc)),
                "longitude": parseFloat(gps.position.coordinate.longitude.toFixed(acc)),
@@ -92,7 +93,10 @@ ApplicationWindow
                  pos["altitude"] = parseFloat(gps.position.coordinate.altitude.toFixed(acc))
              if (gps.position.verticalAccuracyValid)
                  pos["altitudeAccuracy"] = parseFloat(gps.position.verticalAccuracy.toFixed(acc))
-        } else { return }
+        } else {
+          cellsignored+=1
+          return
+        }
 
         var payload = { "items": [
             { "timestamp": ts,
@@ -124,6 +128,7 @@ ApplicationWindow
         })
         if (!cta.length) {
           console.warn("No valid cells!")
+          cellsignored+=1
           return
         }
         console.debug("got usable cells:", cta.length +"/"+ cells.count)

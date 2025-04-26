@@ -8,8 +8,6 @@ Item {
     property alias valid: cellInfo.valid
     readonly property int invalidValue: OfonoExtCell.InvalidValue
     property alias count: cellInfoFactory.count
-    property int seen: seenCells.length
-    property var seenCells: []
 
     function getCells() {
         var ret = []
@@ -53,14 +51,8 @@ Item {
                 //&& (mnc != OfonoExtCell.InvalidValue)
                 && ((type >= 1) && (type <= 3))
                 )
-             onUsableChanged: {
-                 var seen = root.seenCells
-                 if (usable && seen.indexOf(ci)>=0) {
-                   seen.push(ci)
-                   root.seenCells = seen
-                 }
-             }
              /*
+             onUsableChanged: {}
              onPropertyChanged: {
                //if (value != OfonoExtCell.InvalidValue) console.debug("v:", ""+(index+1)+"/"+cellInfoFactory.count, name, value)
                //if (name == "registered" && value) console.debug("registered!")
