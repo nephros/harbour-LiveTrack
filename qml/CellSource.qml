@@ -6,6 +6,7 @@ Item {
 
     property bool active: false
     property alias valid: cellInfo.valid
+    readonly property int invalidValue: OfonoExtCell.InvalidValue
     property alias count: cellInfoFactory.count
     property int seen: seenCells.length
     property var seenCells: []
@@ -48,9 +49,9 @@ Item {
         delegate: OfonoExtCell {
             property bool usable: (
                    (ci != OfonoExtCell.InvalidValue)
-                && (mcc != OfonoExtCell.InvalidValue)
-                && (mnc != OfonoExtCell.InvalidValue)
-                && ((type > 1) && (type <= 3)) 
+                //&& (mcc != OfonoExtCell.InvalidValue)
+                //&& (mnc != OfonoExtCell.InvalidValue)
+                && ((type >= 1) && (type <= 3))
                 )
              onUsableChanged: {
                  var seen = root.seenCells

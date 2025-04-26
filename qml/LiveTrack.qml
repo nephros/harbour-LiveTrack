@@ -64,13 +64,19 @@ ApplicationWindow
         var pos
         if(gps.ready && gps.valid) {
              pos = { "source": "gps", //.or "fused"
-             "latitude":  gps.position.coordinate.latitude.toFixed(4),
-             "longitude": gps.position.coordinate.longitude.toFixed(4),
-             "speed":     gps.position.speed.toFixed(4),
-             "heading":   gps.position.direction.,
-             "accuracy": gps.position.horizontalAccuracy,
-             "altitudeAccuracy":   gps.position.verticalAccuracy.toFixed(4)
+               "latitude":  parseFloat(gps.position.coordinate.latitude.toFixed(acc)),
+               "longitude": parseFloat(gps.position.coordinate.longitude.toFixed(acc)),
+               "accuracy":  gps.position.horizontalAccuracy, //.toFixed(acc)
+               "age": ts - gps.position.timestamp
              }
+             if (gps.position.speedValid)
+                 pos["speed"] = parseFloat(gps.position.speed.toFixed(acc))
+             if (gps.position.directionValid)
+                 pos["heading"] = parseFloat(gps.position.direction.toFixed(acc))
+             if (gps.position.altitudeValid)
+                 pos["altitude"] = parseFloat(gps.position.coordinate.altitude.toFixed(acc))
+             if (gps.position.verticalAccuracyValid)
+                 pos["altitudeAccuracy"] = parseFloat(gps.position.verticalAccuracy.toFixed(acc))
         } else { return }
 
         var payload = { "items": [
@@ -83,16 +89,23 @@ ApplicationWindow
         //console.debug(JSON.stringify(cells.getCells()))
         var cta = cells.getCells().map(function(cell, idx, arr) {
             const types = [ "Unknown", "gsm", "wcdma", "lte", "nr" ]
-            return {
+            var ret = {
                 "radioType": types[cell.type],
                 "mobileCountryCode": cell.mcc,
                 "mobileNetworkCode": cell.mnc,
-				"locationAreaCode": cell.lac,
                 "cellId": cell.ci,
-                "age": cell.earfcn,
+                //"age": cell.earfcn,
                 "serving": cell.registered,
-                "signalStrength": cell.signalStrength
+                "asu": cell.signalStrength,
+                "signalStrength": cell.signalLevelDbm
             }
+            if (!!cell.tac && (cell.tac != cells.invalidValue))
+                ret["timingAdvance"] = cell.tac
+            if (!!cell.pci && (cell.pci != cells.invalidValue) && (types[cell.type] == "lte"))
+                ret["primaryScramblingCode"] = cell.pci
+            if (!!cell.lac && cell.lac != cells.invalidValue)
+                ret["locationAreaCode"] = cell.lac
+            return ret
         })
         if (!cta.length) {
           console.warn("No valid cells!")
