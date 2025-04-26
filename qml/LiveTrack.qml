@@ -42,17 +42,30 @@ ApplicationWindow
     property alias powersaving: powerSaveMode.active
     McePowerSaveMode { id: powerSaveMode }
     PositionSource { id: gps ; active: !powersaving }
-    CellSource { id: cells ; active: !powersaving }//livetracksettings.getBool("mlscollect") }
+    CellSource { id: cells ; active: !powersaving }
     PositionTimer {id: positiontimer}
     Timer {id: celltimer
         interval: 1000 * 60 * 5
         repeat: true
         onTriggered: submitCells()
-        running: livetracksettings.getBool("mlscollect") && (cells.count > 0) && !powersaving
+        running: cellSubmitSettings.enabled && (cells.count > 0) && !powersaving
     }
     Page {id:settingspages;}
     QtObject { id:positiondata
         property var positionvar: [];
+    }
+    QtObject { id: cellSubmitSettings
+        property bool enabled: livetracksettings.getBool("mlscollect")
+        property int gpsPrecision: 4
+        property int gpsMinPrecision: 250
+        property bool custom: livetracksettings.getBool("mlscustom")
+        property string nick: custom
+            ? livetracksettings.getString("MLSID")
+            : 'geoclue_sailfishos-community-testing'
+            //: 'geoclue_sailfishos-community'
+        property string url: custom
+            ? livetracksettings.getString("MLSURL")+"?key=" + livetracksettings.getString("MLSKEY")
+            : 'https://api.beacondb.net/v2/geosubmit?key=' + nick
     }
     property int sendgood:0;
     property int cellsendgood:0;
@@ -62,6 +75,8 @@ ApplicationWindow
     property bool state: false;
     function submitCells() {
         var pos
+        const acc = cellSubmitSettings.gpsPrecision
+        const ts = Date.now()
         if(gps.ready && gps.valid) {
              pos = { "source": "gps", //.or "fused"
                "latitude":  parseFloat(gps.position.coordinate.latitude.toFixed(acc)),
@@ -80,7 +95,7 @@ ApplicationWindow
         } else { return }
 
         var payload = { "items": [
-            { "timestamp": Date.now(),
+            { "timestamp": ts,
               "cellTowers": [],
               "position": {}
             }
@@ -118,17 +133,8 @@ ApplicationWindow
         console.debug(JSON.stringify(payload))
         //return
         var http = new XMLHttpRequest()
-        var url
-        var nick
-        if(livetracksettings.getBool("mlscustom")) {
-            nick = livetracksettings.getString("MLSID")
-            url = livetracksettings.getString("MLSURL")+"?key="+livetracksettings.getString("MLSKEY")
-        } else {
-            nick = 'geoclue_sailfishos-community-testing'
-            console.warn("Using testing key for submission!")
-            //nick = 'geoclue_sailfishos-community'
-            url = 'https://api.beacondb.net/v2/geosubmit?key='+nick
-        }
+        const url  = cellSubmitSettings.url
+        const nick = cellSubmitSettings.nick
         http.open("POST", url);
         http.setRequestHeader("X-Nickname", nick)
         http.setRequestHeader("Content-Type", " application/json")
