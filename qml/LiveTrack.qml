@@ -56,8 +56,10 @@ ApplicationWindow
     }
     QtObject { id: cellSubmitSettings
         property bool enabled: livetracksettings.getBool("mlscollect")
-        property int gpsPrecision: 4
-        property int gpsMinPrecision: 250
+        property bool submit: livetracksettings.getBool("mlssubmit")
+        readonly property string storage: StandardPaths.documents + "/LiveTrack_celldata.json"
+        readonly property int gpsPrecision: 4
+        readonly property int gpsMinPrecision: 250
         property bool custom: livetracksettings.getBool("mlscustom")
         property string nick: custom
             ? livetracksettings.getString("MLSID")
@@ -98,14 +100,6 @@ ApplicationWindow
             return
         }
 
-        var payload = {
-            "items": [
-                { "timestamp": ts,
-                  "cellTowers": [],
-                  "position": {}
-                }
-            ]
-        }
         //console.debug(JSON.stringify(cells.getCells()))
         var cta = cells.getCells().map(function(cell, idx, arr) {
             const types = [ "Unknown", "gsm", "wcdma", "lte", "nr" ]
@@ -134,22 +128,58 @@ ApplicationWindow
           return
         }
         console.debug("got usable cells:", cta.length +"/"+ cells.count)
+        var payload = { "items": [
+                { "timestamp": ts, "cellTowers": [], "position": {} }
+            ]}
         payload.items[0].cellTowers = cta
         payload.items[0].position = pos
         //console.debug(JSON.stringify(cta))
-        console.debug(JSON.stringify(payload))
+        console.debug("Collection payload:", JSON.stringify(payload))
         //return
+        if (cellSubmitSettings.submit) {
+            publishCells(payload)
+        } else {
+            storeCells(payload)
+        }
+    }
+    //.load local file, append ayload, and save again
+    function storeCells(payload) {
+        const url = Qt.resolvedUrl(cellSubmitSettings.storage)
+        var loadreq = new XMLHttpRequest()
+        loadreq.onreadystatechange = function() {
+            if (loadreq.readyState === XMLHttpRequest.DONE) {
+                var data = JSON.parse(loadreq.responseText)
+                if (data) {
+                    console.debug("Found and parsed previous data file")
+                    data.items = data.items.concat(payload.items)
+                } else {
+                    console.debug("Creating new data file")
+                    data = payload
+                }
+                var savereq = new XMLHttpRequest()
+                savereq.onreadystatechange = function() {
+                    if (savereq.readyState === XMLHttpRequest.DONE) {
+                        console.debug("Saved cell data")
+                    }
+                }
+                savereq.open("PUT", url);
+                savereq.send(JSON.stringify(data, null, 2))
+            }
+        }
+        loadreq.open("GET", url);
+        loadreq.send()
+    }
+    function publishCells(payload) {
         var http = new XMLHttpRequest()
         const url  = cellSubmitSettings.url
         const nick = cellSubmitSettings.nick
         http.open("POST", url);
         http.setRequestHeader("X-Nickname", nick)
         http.setRequestHeader("Content-Type", " application/json")
-
         http.onreadystatechange = function() {
             if (http.readyState === XMLHttpRequest.DONE) {
                 if (http.status === 200) {
-                    cellsendgood += cta.length
+                    cellsendgood += payload.items[0].cellTowers.length
                     console.info("Submitted.")
                     console.debug(JSON.stringify(payload))
                 } else {

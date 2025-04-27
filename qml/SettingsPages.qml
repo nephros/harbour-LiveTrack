@@ -111,16 +111,25 @@ Page {
         SectionHeader { text: qsTr("Cell info collection") }
         TextSwitch {
             id: collect
-            text: qsTr("Enable")
+            text: qsTr("Collect Data")
             checked: livetracksettings.getBool("mlscollect")
-            description: qsTr("Collect and submit cell info data")
+            description: qsTr("Collect cell info data.")
             onCheckedChanged: {
                 livetracksettings.set("mlscollect",checked)
             }
         }
         TextSwitch {
+            id: submit
+            text: qsTr("Submit to Server")
+            checked: livetracksettings.getBool("mlssubmit")
+            description: qsTr("Submit collected cell info data to %1. If this is off, data will be saved to %2").arg("BeaconDB").arg(cellSubmitSettings.storage)
+            onCheckedChanged: {
+                livetracksettings.set("mlssubmit",checked)
+            }
+        }
+        TextSwitch {
             id: mlscustom
-            enabled: collect.checked
+            enabled: submit.checked
             text: qsTr("Use custom Server")
             checked: livetracksettings.getBool("mlscustom")
             onCheckedChanged: {
@@ -138,7 +147,7 @@ Page {
             horizontalAlignment: textAlignment
             inputMethodHints: Qt.ImhUrlCharactersOnly
             onTextChanged: {
-                livetracksettings.set("MLSURL",newtext)
+                livetracksettings.set("MLSURL", text)
             }
         }
         TextField {
