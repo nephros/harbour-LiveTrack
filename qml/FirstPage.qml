@@ -287,7 +287,8 @@ Page {
                        icon.source: "image://theme/icon-m-cloud-upload?" +
                                 ( enabled ? Theme.highlightColor : Theme.secondaryColor )
                        onClicked: submitCells()
-                       enabled: cells.count > 0
+                       enabled: ((cells.count > 0)
+					            && (gps.position.horizontalAccuracy < cellSubmitSettings.gpsMinPrecision))
                        Behavior on enabled { FadeAnimation {} }
                    }
                    Label {
