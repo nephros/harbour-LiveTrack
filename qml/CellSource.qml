@@ -8,6 +8,8 @@ Item {
     property alias valid: cellInfo.valid
     readonly property int invalidValue: OfonoExtCell.InvalidValue
     property alias count: cellInfoFactory.count
+    property int strength
+    property string tech
 
     function getCells() {
         var ret = []
@@ -54,8 +56,24 @@ Item {
                    ((ci != OfonoExtCell.InvalidValue) || (cid != OfonoExtCell.InvalidValue))
                    && ((type >= 1) && (type <= 3))
                 )
-             onUsableChanged: timestamp = Date.now()
-             onPropertyChanged: timestamp = Date.now()
+             //onPropertyChanged: {}
+             onUsableChanged: {
+                 timestamp = Date.now()
+                 if (registered) {
+                     root.strength = signalStrength
+                     if (type == OfonoExtCell.LTE) root.tech = "LTE"
+                     if (type == OfonoExtCell.GSM) root.tech = "GSM"
+                 }
+
+                 var info = this
+                 console.debug("cell #", index, ":", JSON.stringify(
+                    info,
+                    function(k,v) {
+                      if (v==OfonoExtCell.InvalidValue) { return undefined }
+                      return v
+                    }
+                 ))
+             }
              /*
              onPropertyChanged: {
                //if (value != OfonoExtCell.InvalidValue) console.debug("v:", ""+(index+1)+"/"+cellInfoFactory.count, name, value)

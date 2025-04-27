@@ -349,7 +349,7 @@ Page {
                             horizontalAlignment: Text.AlignRight
                             color: Theme.highlightColor
                             font.pixelSize: Theme.fontSizeTiny
-                            text: cells.count
+                            text: cells.count + (cells.tech ? " ("+cells.tech+")" : "")
                             //text: positiontimer.tosend
                         }
                         Label {
