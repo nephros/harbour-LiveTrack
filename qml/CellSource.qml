@@ -16,6 +16,8 @@ Item {
           //console.debug("cell", i, JSON.stringify(o))
           if (!o.usable) continue
           var r = {}
+          if (o.type == 1) r["cellid"] = o.cid
+          if (o.type == 3) r["cellid"] = o.ci
           // add all valid numbers
           Object.keys(o).forEach(function(k) {
             if (typeof o[k]  == "number") {
@@ -49,10 +51,8 @@ Item {
         delegate: OfonoExtCell {
             property int timestamp: OfonoExtCell.InvalidValue
             property bool usable: (
-                   (ci != OfonoExtCell.InvalidValue)
-                //&& (mcc != OfonoExtCell.InvalidValue)
-                //&& (mnc != OfonoExtCell.InvalidValue)
-                && ((type >= 1) && (type <= 3))
+                   ((ci != OfonoExtCell.InvalidValue) || (cid != OfonoExtCell.InvalidValue))
+                   && ((type >= 1) && (type <= 3))
                 )
              onUsableChanged: timestamp = Date.now()
              onPropertyChanged: timestamp = Date.now()

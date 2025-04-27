@@ -104,13 +104,15 @@ ApplicationWindow
         var cta = cells.getCells().map(function(cell, idx, arr) {
             const types = [ "Unknown", "gsm", "wcdma", "lte", "nr" ]
             var ret = {
+                "cellId": cell.cellid,
                 "radioType": types[cell.type],
-                "mobileCountryCode": cell.mcc,
-                "mobileNetworkCode": cell.mnc,
-                "cellId": cell.ci,
                 "serving": cell.registered,
                 "asu": cell.signalStrength,
                 "signalStrength": cell.signalLevelDbm
+            }
+            if (cell.registered) {
+                ret["mobileCountryCode"] = cell.mcc
+                ret["mobileNetworkCode"] = cell.mnc
             }
             if (!!cell.timestamp && (cell.timestamp != cells.invalidValue))
                 ret["age"] = ts - cell.timestamp
@@ -120,6 +122,11 @@ ApplicationWindow
                 ret["primaryScramblingCode"] = cell.pci
             if (!!cell.lac && cell.lac != cells.invalidValue)
                 ret["locationAreaCode"] = cell.lac
+            // sanity check
+            if (!!cell.cellid && (cell.cellid == cells.invalidValue)) {
+                console.warn("BUG: Info has invalid cell ID!")
+                return undefined
+            }
             return ret
         })
         if (!cta.length) {
