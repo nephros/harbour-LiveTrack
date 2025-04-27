@@ -148,11 +148,14 @@ ApplicationWindow
         var loadreq = new XMLHttpRequest()
         loadreq.onreadystatechange = function() {
             if (loadreq.readyState === XMLHttpRequest.DONE) {
-                var data = JSON.parse(loadreq.responseText)
-                if (data) {
-                    console.debug("Found and parsed previous data file")
-                    data.items = data.items.concat(payload.items)
-                } else {
+                var data
+                try {
+                    data = JSON.parse(loadreq.responseText)
+                    if (data) {
+                        console.debug("Found and parsed previous data file")
+                        data.items = data.items.concat(payload.items)
+                    }
+                } catch (e) {
                     console.debug("Creating new data file")
                     data = payload
                 }
