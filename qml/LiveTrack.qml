@@ -108,7 +108,7 @@ ApplicationWindow
         var pos
         const acc = cellCollectSettings.gpsPrecision
         const ts = Date.now()
-        if(gps.ready && gps.valid &&  (gps.position.horizontalAccuracy < cellCollectSettings.gpsMinPrecision) ){
+        if(gps.ready && gps.valid && (gps.position.horizontalAccuracy < cellCollectSettings.gpsMinPrecision) ){
           pos = { "source": "gps", //.or "fused"
             "latitude":  parseFloat(gps.position.coordinate.latitude.toFixed(acc)),
             "longitude": parseFloat(gps.position.coordinate.longitude.toFixed(acc)),
@@ -128,7 +128,6 @@ ApplicationWindow
             return
         }
 
-        //console.debug(JSON.stringify(cells.getCells()))
         var cta = cells.getCells().map(function(cell, idx, arr) {
             const types = [ "Unknown", "gsm", "wcdma", "lte", "nr" ]
             var ret = {
@@ -185,7 +184,7 @@ ApplicationWindow
             }
         }
     }
-    // load local file, execute callback on it
+    // load local file, execute callback on parsed JSON data, or null
     function loadCellData(callback) {
         const url = Qt.resolvedUrl(cellCollectSettings.storage)
         var req = new XMLHttpRequest()
@@ -195,6 +194,7 @@ ApplicationWindow
                     const data = JSON.parse(responseText)
                     callback(data)
                 } catch (e) {
+                    console.debug("JSON parsing of old data failed:", e)
                     callback(null)
                 }
             }
@@ -211,14 +211,14 @@ ApplicationWindow
                 console.debug("Found and parsed previous data file")
                 data.items = response.items.concat(celldata.items)
             } else {
-                console.debug("Creating new data file")
+                console.info("Creating new data file:", cellCollectSettings.storage)
                 data.items = celldata.items
             }
             var req = new XMLHttpRequest()
             req.onreadystatechange = function() {
                 if (req.readyState === XMLHttpRequest.DONE) {
-                    onsuccess
-                    console.debug("Saved cell data")
+                    if (typeof onsuccess === 'function') onsuccess()
+                    console.debug("Saved cell data.")
                 }
             }
             req.open("PUT", url);
@@ -238,11 +238,11 @@ ApplicationWindow
             if (http.readyState === XMLHttpRequest.DONE) {
                 if (http.status === 200) {
                     cellsendgood += payload.items.reduce(function(acc, val, idx){ return acc += val["cellTowers"].length}, 0)
-                    console.info("Submitted.")
+                    console.info("Cell data Submitted.")
                     console.debug(JSON.stringify(payload))
                     if (typeof onsuccess === 'function') onsuccess()
                 } else {
-                    console.warn("Submission failed:", http.statusText)
+                    console.warn("Cell data submission failed:", http.status, http.statusText)
                     console.debug(JSON.stringify(payload))
                 }
             }

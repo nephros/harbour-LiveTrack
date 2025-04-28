@@ -122,7 +122,8 @@ Page {
             id: submit
             text: qsTr("Submit to Server")
             checked: livetracksettings.getBool("mlssubmit")
-            description: qsTr("Submit collected cell info data to %1. If this is off, data will be saved to %2").arg("BeaconDB").arg(cellCollectSettings.storage)
+            description: qsTr("Submit collected cell info data to %1").arg("BeaconDB")
+                + "\n" qsTr("If this is off, data will be saved to %1").arg(cellCollectSettings.storage)
             onCheckedChanged: {
                 livetracksettings.set("mlssubmit",checked)
             }
