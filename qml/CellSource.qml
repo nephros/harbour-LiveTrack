@@ -54,7 +54,7 @@ Item {
             property int timestamp: OfonoExtCell.InvalidValue
             property bool usable: (
                    ((ci != OfonoExtCell.InvalidValue) || (cid != OfonoExtCell.InvalidValue))
-                   && ((type >= 1) && (type <= 3))
+                && ((type == OfonoExtCell.GSM) || (type == OfonoExtCell.WCDMA) || (type == OfonoExtCell.LTE))
                 )
              //onPropertyChanged: {}
              onUsableChanged: {

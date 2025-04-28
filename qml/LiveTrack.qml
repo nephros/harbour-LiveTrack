@@ -110,7 +110,7 @@ ApplicationWindow
                 "asu": cell.signalStrength,
                 "signalStrength": cell.signalLevelDbm
             }
-            if (cell.registered) {
+            if ((cell.mcc) && (cell.mnc)) {
                 ret["mobileCountryCode"] = cell.mcc
                 ret["mobileNetworkCode"] = cell.mnc
             }
