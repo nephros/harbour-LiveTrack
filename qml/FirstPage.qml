@@ -280,13 +280,13 @@ Page {
                         font.pixelSize: Theme.fontSizeSmall
                         horizontalAlignment: Text.AlignHCenter
                         color: Theme.highlightColor
-                        text: qsTr("Submit")
+                        text: cellCollectSettings.submit ? qsTr("Submit") : qsTr("Export")
                     }
                     IconButton {
                        id: cellsend
                        icon.source: "image://theme/icon-m-cloud-upload?" +
                                 ( enabled ? Theme.highlightColor : Theme.secondaryColor )
-                       onClicked: submitCells()
+                       onClicked: processCells()
                        enabled: ((cells.count > 0)
                                 && (gps.position.horizontalAccuracy < cellCollectSettings.gpsMinPrecision))
                        Behavior on enabled { FadeAnimation {} }

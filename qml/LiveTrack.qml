@@ -97,11 +97,11 @@ ApplicationWindow
          - stores the result via storeCells
        - storeCells:
          - appends its input to the "volatile cache" (celldata.items)
-         - if there is something to save, appends it to the permanent storage (file)
          - if beacondb submission is enabled, calls publishCells
+         - else, appends it to the permanent storage (file) via saveCellData
        - publishCells:
            - submits stuff saved in celldata.items
-           - calls its uccess callback on success, which clears the volatile cache
+           - calls its success callback on success
     */
     // get cell data from CellSource, and create a valid ichnaea object
     function processCells() {
@@ -176,13 +176,12 @@ ApplicationWindow
     function storeCells(payload) {
         const items = celldata.items.concat(payload.items)
         celldata.items = items
+        function success() { celldata.items = [] }
         if (celldata.items.length > 0) {
-            saveCellData() // NOTE: race condition with publishCells onsuccess function, but local should be faster...
             if (cellCollectSettings.submit) {
-                publishCells(
-                    { "items": celldata.items },
-                    function() { celldata.items = [] }
-                )
+                publishCells( { "items": celldata.items }, success())
+            } else {
+                saveCellData(success())
             }
         }
     }
@@ -204,7 +203,7 @@ ApplicationWindow
         req.send()
     }
     // load local file, append our cached items, and save again
-    function saveCellData() {
+    function saveCellData(onsuccess) {
         loadCellData(function(response) {
             var data = { "items": [] }
             if (response != null) {
@@ -217,6 +216,7 @@ ApplicationWindow
             var req = new XMLHttpRequest()
             req.onreadystatechange = function() {
                 if (req.readyState === XMLHttpRequest.DONE) {
+                    onsuccess
                     console.debug("Saved cell data")
                 }
             }
