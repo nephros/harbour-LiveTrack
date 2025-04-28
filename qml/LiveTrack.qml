@@ -48,13 +48,13 @@ ApplicationWindow
         interval: 1000 * 60 * 5
         repeat: true
         onTriggered: submitCells()
-        running: cellSubmitSettings.enabled && (cells.count > 0) && !powersaving
+        running: cellCollectSettings.enabled && (cells.count > 0) && !powersaving
     }
     Page {id:settingspages;}
     QtObject { id:positiondata
         property var positionvar: [];
     }
-    QtObject { id: cellSubmitSettings
+    QtObject { id: cellCollectSettings
         property bool enabled: livetracksettings.getBool("mlscollect")
         property bool submit: livetracksettings.getBool("mlssubmit")
         readonly property string storage: StandardPaths.documents + "/LiveTrack_celldata.json"
@@ -78,9 +78,9 @@ ApplicationWindow
     property bool state: false;
     function submitCells() {
         var pos
-        const acc = cellSubmitSettings.gpsPrecision
+        const acc = cellCollectSettings.gpsPrecision
         const ts = Date.now()
-        if(gps.ready && gps.valid &&  (gps.position.horizontalAccuracy < cellSubmitSettings.gpsMinPrecision) ){
+        if(gps.ready && gps.valid &&  (gps.position.horizontalAccuracy < cellCollectSettings.gpsMinPrecision) ){
           pos = { "source": "gps", //.or "fused"
             "latitude":  parseFloat(gps.position.coordinate.latitude.toFixed(acc)),
             "longitude": parseFloat(gps.position.coordinate.longitude.toFixed(acc)),
@@ -143,7 +143,7 @@ ApplicationWindow
         //console.debug(JSON.stringify(cta))
         console.debug("Collection payload:", JSON.stringify(payload))
         //return
-        if (cellSubmitSettings.submit) {
+        if (cellCollectSettings.submit) {
             publishCells(payload)
         } else {
             storeCells(payload)
@@ -151,7 +151,7 @@ ApplicationWindow
     }
     // load local file, execute callback on it
     function loadCellData(callback) {
-        const url = Qt.resolvedUrl(cellSubmitSettings.storage)
+        const url = Qt.resolvedUrl(cellCollectSettings.storage)
         var loadreq = new XMLHttpRequest()
         loadreq.onreadystatechange = function() {
             if (loadreq.readyState === XMLHttpRequest.DONE) {
@@ -188,8 +188,8 @@ ApplicationWindow
     }
     function publishCells(payload) {
         var http = new XMLHttpRequest()
-        const url  = cellSubmitSettings.url
-        const nick = cellSubmitSettings.nick
+        const url  = cellCollectSettings.url
+        const nick = cellCollectSettings.nick
         http.open("POST", url);
         http.setRequestHeader("X-Nickname", nick)
         http.setRequestHeader("Content-Type", " application/json")

@@ -288,7 +288,7 @@ Page {
                                 ( enabled ? Theme.highlightColor : Theme.secondaryColor )
                        onClicked: submitCells()
                        enabled: ((cells.count > 0)
-                                && (gps.position.horizontalAccuracy < cellSubmitSettings.gpsMinPrecision))
+                                && (gps.position.horizontalAccuracy < cellCollectSettings.gpsMinPrecision))
                        Behavior on enabled { FadeAnimation {} }
                    }
                    Label {
@@ -296,7 +296,7 @@ Page {
                        font.pixelSize: Theme.fontSizeTiny
                        horizontalAlignment: Text.AlignHCenter
                        color: Theme.secondaryColor
-                       text: cellSubmitSettings.submit ? cellsendgood : qsTr("disabled")
+                       text: cellCollectSettings.submit ? cellsendgood : qsTr("disabled")
                    }
                 }
                 Column {
