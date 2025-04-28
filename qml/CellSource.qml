@@ -38,13 +38,13 @@ Item {
         modemPath: root.active ? "/ril_0" : ""
         /*
         onValidChanged: console.debug("cellInfo valid:", valid)
-        onCellsRemoved: {
-          console.debug("cells removed", cells)
-        }
-        onCellsAdded: {
-          console.debug("cells added", cells)
-        }
         */
+        onCellsAdded: function(cells) {
+          console.debug(cells.length, "cells removed, now", cellInfo.cells.length)
+        }
+        onCellsRemoved: function(cells) {
+          console.debug(cells.length, "cells removed, now", cellInfo.cells.length)
+        }
     }
     Instantiator { id: cellInfoFactory
         active: root.active
