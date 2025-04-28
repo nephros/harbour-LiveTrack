@@ -204,6 +204,7 @@ ApplicationWindow
     }
     // load local file, append our cached items, and save again
     function saveCellData(onsuccess) {
+        const url = Qt.resolvedUrl(cellCollectSettings.storage)
         loadCellData(function(response) {
             var data = { "items": [] }
             if (response != null) {
