@@ -296,7 +296,7 @@ Page {
                        font.pixelSize: Theme.fontSizeTiny
                        horizontalAlignment: Text.AlignHCenter
                        color: Theme.secondaryColor
-                       text: cellCollectSettings.submit ? cellsendgood : qsTr("disabled")
+                       text: cellCollectSettings.submit ? (Number(celldata.count) + " / " + cellsendgood) : qsTr("disabled")
                    }
                 }
                 Column {
