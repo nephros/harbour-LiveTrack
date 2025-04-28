@@ -149,35 +149,42 @@ ApplicationWindow
             storeCells(payload)
         }
     }
-    //.load local file, append ayload, and save again
-    function storeCells(payload) {
+    // load local file, execute callback on it
+    function loadCellData(callback) {
         const url = Qt.resolvedUrl(cellSubmitSettings.storage)
         var loadreq = new XMLHttpRequest()
         loadreq.onreadystatechange = function() {
             if (loadreq.readyState === XMLHttpRequest.DONE) {
-                var data
                 try {
-                    data = JSON.parse(loadreq.responseText)
-                    if (data) {
-                        console.debug("Found and parsed previous data file")
-                        data.items = data.items.concat(payload.items)
-                    }
+                    const data = JSON.parse(responseText)
+                    callback(data)
                 } catch (e) {
-                    console.debug("Creating new data file")
-                    data = payload
+                    callback(null)
                 }
-                var savereq = new XMLHttpRequest()
-                savereq.onreadystatechange = function() {
-                    if (savereq.readyState === XMLHttpRequest.DONE) {
-                        console.debug("Saved cell data")
-                    }
-                }
-                savereq.open("PUT", url);
-                savereq.send(JSON.stringify(data, null, 2))
             }
         }
         loadreq.open("GET", url);
         loadreq.send()
+    }
+    // load local file, append payload, and save again
+    function storeCells(payload) {
+        loadCellData(function(response) {
+            if (data) {
+                console.debug("Found and parsed previous data file")
+                data.items = data.items.concat(payload.items)
+            } else {
+                console.debug("Creating new data file")
+                data = payload
+            }
+            var savereq = new XMLHttpRequest()
+            savereq.onreadystatechange = function() {
+                if (savereq.readyState === XMLHttpRequest.DONE) {
+                    console.debug("Saved cell data")
+                }
+            }
+            savereq.open("PUT", url);
+            savereq.send(JSON.stringify(data, null, 2))
+        })
     }
     function publishCells(payload) {
         var http = new XMLHttpRequest()
