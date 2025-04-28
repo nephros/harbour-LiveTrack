@@ -57,7 +57,7 @@ ApplicationWindow
     QtObject { id: cellCollectSettings
         property bool enabled: livetracksettings.getBool("mlscollect")
         property bool submit: livetracksettings.getBool("mlssubmit")
-        readonly property string storage: StandardPaths.documents + "/LiveTrack_celldata.json"
+        readonly property string storage: StandardPaths.documents + "/LiveTrack_celldata" + today.toISOString().substr(0,10) + ".json"
         readonly property int gpsPrecision: 4
         readonly property int gpsMinPrecision: 250
         property bool custom: livetracksettings.getBool("mlscustom")
@@ -73,6 +73,8 @@ ApplicationWindow
     property int cellsendgood:0;
     property int cellsignored:0;
     readonly property string userAgent: Qt.application.name
+
+    readonly property date today: new Date()
 
 //-----------------------Function-----------------------------//
     property bool state: false;
