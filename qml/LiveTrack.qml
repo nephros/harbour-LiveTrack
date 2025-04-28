@@ -47,17 +47,25 @@ ApplicationWindow
     Timer {id: celltimer
         interval: 1000 * 60 * 5
         repeat: true
-        onTriggered: submitCells()
+        onTriggered: processCells()
         running: cellCollectSettings.enabled && (cells.count > 0) && !powersaving
     }
     Page {id:settingspages;}
     QtObject { id:positiondata
         property var positionvar: [];
     }
+    QtObject { id: celldata
+        // corresponds to the items property of an ichnaea request payload object
+        property var items: []
+        property int count: items.length
+        readonly property int maxCount: 1000
+        onCountChanged: if (count > maxCount) { var old = items; old.shift(); items = old }
+        function cellCount() { return items.reduce(function(acc, val, idx){ return acc += val["cellTowers"].length}, 0) }
+    }
     QtObject { id: cellCollectSettings
         property bool enabled: livetracksettings.getBool("mlscollect")
         property bool submit: livetracksettings.getBool("mlssubmit")
-        readonly property string storage: StandardPaths.documents + "/LiveTrack_celldata" + today.toISOString().substr(0,10) + ".json"
+        readonly property string storage: StandardPaths.documents + "/LiveTrack_celldata_" + today.toISOString().substr(0,10) + ".json"
         readonly property int gpsPrecision: 4
         readonly property int gpsMinPrecision: 250
         property bool custom: livetracksettings.getBool("mlscustom")
@@ -68,6 +76,7 @@ ApplicationWindow
         property string url: custom
             ? livetracksettings.getString("MLSURL")+"?key=" + livetracksettings.getString("MLSKEY")
             : 'https://api.beacondb.net/v2/geosubmit?key=' + nick
+        property string useragent: nick + " (Sailfish OS; " + Qt.application.name + " " + Qt.application.version + ")"
     }
     property int sendgood:0;
     property int cellsendgood:0;
@@ -78,7 +87,24 @@ ApplicationWindow
 
 //-----------------------Function-----------------------------//
     property bool state: false;
-    function submitCells() {
+
+
+    /* Cell collection logic:
+
+       - cellSource has some cell info
+       - celltimer calls processCells which:
+         - transforms the cell info into ichnaea request data
+         - stores the result via storeCells
+       - storeCells:
+         - appends its input to the "volatile cache" (celldata.items)
+         - if there is something to save, appends it to the permanent storage (file)
+         - if beacondb submission is enabled, calls publishCells
+       - publishCells:
+           - submits stuff saved in celldata.items
+           - calls its uccess callback on success, which clears the volatile cache
+    */
+    // get cell data from CellSource, and create a valid ichnaea object
+    function processCells() {
         var pos
         const acc = cellCollectSettings.gpsPrecision
         const ts = Date.now()
@@ -137,26 +163,35 @@ ApplicationWindow
           return
         }
         console.debug("got usable cells:", cta.length +"/"+ cells.count)
+
         var payload = { "items": [
                 { "timestamp": ts, "cellTowers": [], "position": {} }
             ]}
         payload.items[0].cellTowers = cta
         payload.items[0].position = pos
-        //console.debug(JSON.stringify(cta))
         console.debug("Collection payload:", JSON.stringify(payload))
-        //return
-        if (cellCollectSettings.submit) {
-            publishCells(payload)
-        } else {
-            storeCells(payload)
+        storeCells(payload)
+    }
+    // store cell data payload in "volatile cache":
+    function storeCells(payload) {
+        const items = celldata.items.concat(payload.items)
+        celldata.items = items
+        if (celldata.items.length > 0) {
+            saveCellData() // NOTE: race condition with publishCells onsuccess function, but local should be faster...
+            if (cellCollectSettings.submit) {
+                publishCells(
+                    { "items": celldata.items },
+                    function() { celldata.items = [] }
+                )
+            }
         }
     }
     // load local file, execute callback on it
     function loadCellData(callback) {
         const url = Qt.resolvedUrl(cellCollectSettings.storage)
-        var loadreq = new XMLHttpRequest()
-        loadreq.onreadystatechange = function() {
-            if (loadreq.readyState === XMLHttpRequest.DONE) {
+        var req = new XMLHttpRequest()
+        req.onreadystatechange = function() {
+            if (req.readyState === XMLHttpRequest.DONE) {
                 try {
                     const data = JSON.parse(responseText)
                     callback(data)
@@ -165,42 +200,46 @@ ApplicationWindow
                 }
             }
         }
-        loadreq.open("GET", url);
-        loadreq.send()
+        req.open("GET", url);
+        req.send()
     }
-    // load local file, append payload, and save again
-    function storeCells(payload) {
+    // load local file, append our cached items, and save again
+    function saveCellData() {
         loadCellData(function(response) {
-            if (data) {
+            var data = { "items": [] }
+            if (response != null) {
                 console.debug("Found and parsed previous data file")
-                data.items = data.items.concat(payload.items)
+                data.items = response.items.concat(celldata.items)
             } else {
                 console.debug("Creating new data file")
-                data = payload
+                data.items = celldata.items
             }
-            var savereq = new XMLHttpRequest()
-            savereq.onreadystatechange = function() {
-                if (savereq.readyState === XMLHttpRequest.DONE) {
+            var req = new XMLHttpRequest()
+            req.onreadystatechange = function() {
+                if (req.readyState === XMLHttpRequest.DONE) {
                     console.debug("Saved cell data")
                 }
             }
-            savereq.open("PUT", url);
-            savereq.send(JSON.stringify(data, null, 2))
+            req.open("PUT", url);
+            req.send(JSON.stringify(data, null, 2))
         })
     }
-    function publishCells(payload) {
+    function publishCells(payload, onsuccess) {
         var http = new XMLHttpRequest()
         const url  = cellCollectSettings.url
         const nick = cellCollectSettings.nick
+        const ua = cellCollectSettings.useragent
         http.open("POST", url);
+        http.setRequestHeader("User-Agent", ua)
         http.setRequestHeader("X-Nickname", nick)
-        http.setRequestHeader("Content-Type", " application/json")
+        http.setRequestHeader("Content-Type", "application/json")
         http.onreadystatechange = function() {
             if (http.readyState === XMLHttpRequest.DONE) {
                 if (http.status === 200) {
-                    cellsendgood += payload.items[0].cellTowers.length
+                    cellsendgood += payload.items.reduce(function(acc, val, idx){ return acc += val["cellTowers"].length}, 0)
                     console.info("Submitted.")
                     console.debug(JSON.stringify(payload))
+                    if (typeof onsuccess === 'function') onsuccess()
                 } else {
                     console.warn("Submission failed:", http.statusText)
                     console.debug(JSON.stringify(payload))
