@@ -1,5 +1,7 @@
 import QtQuick 2.6
 import Sailfish.Silica 1.0
+import QtPositioning 5.4
+import QtLocation 5.4
 import "."
 
 Page {
@@ -366,6 +368,27 @@ Page {
                       }
                   }
                 }
+            }
+            Map { id: map
+                width: parent.width
+                height: width
+                plugin: Plugin { id: plugin
+                   name: "osm"
+                   // See https://codeberg.org/beacondb/beacondb/issues/91
+
+                   //PluginParameter { name: “osm.mapping.host”; value: "https://cdn.beacondb.net/tiles/beacondb/{z}/{x}/{y}.mvt" }
+                   //PluginParameter { name: "osm.mapping.host"; value: "https://tile.openstreetmap.org" }
+                   PluginParameter { name: "osm.mapping.host"; value: "https://cdn.beacondb.net/tiles/beacondb/" }
+                   PluginParameter { name: "osm.mapping.custom.host"; value: "https://cdn.beacondb.net/tiles/beacondb/" }
+                   //PluginParameter { name: "osm.mapping.providersrepository.disabled"; value: true }
+                }
+                //activeMapType: MapType.CustomType
+                // force custom type:
+                activeMapType: supportedMapTypes[supportedMapTypes.length - 1]
+                center: gps.position.coordinate
+                zoomLevel : maximumZoomLevel-2
+                minimumZoomLevel : 0
+                maximumZoomLevel : 14
             }
         }
     }
