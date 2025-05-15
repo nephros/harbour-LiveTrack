@@ -75,7 +75,9 @@ ApplicationWindow
             //: 'geoclue_sailfishos-community'
         property string url: custom
             ? livetracksettings.getString("MLSURL")+"?key=" + livetracksettings.getString("MLSKEY")
-            : 'https://api.beacondb.net/v2/geosubmit?key=' + nick
+            // According to https://codeberg.org/beacondb/beacondb/issues/62, a key is not needed
+            //: 'https://api.beacondb.net/v2/geosubmit?key=' + nick
+            : 'https://api.beacondb.net/v2/geosubmit'
         property string useragent: nick + " (Sailfish OS; " + Qt.application.name + " " + Qt.application.version + ")"
     }
     property int sendgood:0;
