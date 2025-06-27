@@ -2,7 +2,7 @@
 Type=Application
 X-Nemo-Application-Type=silica-qt5
 Icon=harbour-livetrack
-Exec=harbour-livetrack
+Exec=/usr/bin/invoker -s -t silica-qt5 /usr/bin/harbour-livetrack
 Name=LiveTrack
 # translation example:
 # your app name in German locale (de)
