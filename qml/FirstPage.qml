@@ -45,11 +45,11 @@ Page {
             }
             DetailItem {
                 label: qsTr("Accuracy")
-                value:gps.position.horizontalAccuracy.toPrecision(4) + qsTr("m")
+                value:gps.position.horizontalAccuracy.toFixed(2) + qsTr("m")
             }
             DetailItem {
                 label: qsTr("Height")
-                value: { gps.position.coordinate.altitude.toPrecision(4) + qsTr("m")}
+                value: { gps.position.coordinate.altitude.toFixed(2) + qsTr("m")}
             }
             DetailItem {
                 label: qsTr("Speed")
