@@ -1,0 +1,3 @@
+[submodule "stumblefish"]
+	path = stumblefish
+	url = https://github.com/abranson/harbour-stumblefish
