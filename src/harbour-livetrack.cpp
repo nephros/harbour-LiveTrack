@@ -6,6 +6,18 @@
 #include "settings.h"
 #include <QtQuick>
 
+#include <QObject>
+#include <QDBusConnection>
+#include "stumblefish/common/constants.h"
+
+class Fish : public QObject
+{
+Q_OBJECT
+public Q_SLOTS:
+    void stumbleReportsChanged() {};
+};
+
+#include "harbour-livetrack.moc"
 
 int main(int argc, char *argv[])
 {
@@ -16,6 +28,15 @@ int main(int argc, char *argv[])
     Settings livetracksettings;
     livetracksettings.initialize();
     context->setContextProperty("livetracksettings", &livetracksettings);
+
+    Fish* fish = new Fish();
+    context->setContextProperty("StumbleFish", fish);
+
+    QDBusConnection::sessionBus().connect(Stumblefish::ServiceName,
+                                          Stumblefish::ObjectPath,
+                                          Stumblefish::InterfaceName,
+                                          QStringLiteral("reportsChanged"),
+                                          fish, SLOT(stumbleReportsChanged()));
 
     view->setSource(SailfishApp::pathTo("qml/LiveTrack.qml"));
     view->show();

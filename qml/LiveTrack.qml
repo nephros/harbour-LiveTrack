@@ -36,6 +36,12 @@ import "."
 
 ApplicationWindow
 {
+    Connections {
+       target: StumbleFish
+       onStumbleReportsChanged: function() {
+           console.log("STUMBLE!")
+       }
+    }
     initialPage: Component { FirstPage { } }
     cover: Qt.resolvedUrl("cover/CoverPage.qml")
     allowedOrientations: defaultAllowedOrientations

@@ -55,7 +55,7 @@ DISTFILES += qml/LiveTrack.qml \
     qml/FirstPage.qml
 
 SAILFISHAPP_ICONS = 86x86 108x108 128x128 172x172
-QT += qml quick positioning sensors
+QT += qml quick positioning sensors dbus
 
 
 # to disable building translations every time, comment out the
