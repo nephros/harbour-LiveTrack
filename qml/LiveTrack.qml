@@ -63,19 +63,18 @@ ApplicationWindow
         }
         http.open("Get", url, true); //true=asynchronus,false=synchronus
         http.onreadystatechange = function() {
-          if (http.readyState === XMLHttpRequest.DONE) {
-           if (http.status === 200) {
-                     positiondata.positionvar.splice(index, 1);
-               sendgood++;
-           }
-           else {
-                positiondata.positionvar[index].dirty=false;
+            if (http.readyState === XMLHttpRequest.DONE) {
+                if (http.status === 200) {
+                    positiondata.positionvar.splice(index, 1);
+                    sendgood++;
+                } else {
+                    positiondata.positionvar[index].dirty=false;
                 }
             }
         };
         http.send();
         return true;
-}
+    }
 //------------------------------------------------------------//
 
 }
