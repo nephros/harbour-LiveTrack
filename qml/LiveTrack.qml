@@ -41,11 +41,10 @@ ApplicationWindow
     allowedOrientations: defaultAllowedOrientations
     property alias powersaving: powerSaveMode.active
     McePowerSaveMode { id: powerSaveMode }
-    PositionSource { id: gps }
+    PositionSource { id: gps ; active: !powersaving }
     Timer {id: positiontimer}
-    Page {id:settingspages;}
-    Item{
-        id:positiondata
+    Page {id: settingspages}
+    QtObject { id: positiondata
         property var positionvar: [];
     }
     property int sendgood:0;
@@ -75,7 +74,7 @@ ApplicationWindow
             }
         };
         http.send();
-       return true;
+        return true;
 }
 //------------------------------------------------------------//
 
